@@ -1,5 +1,11 @@
 # Movie-review-api
 
+## description
+
+This Project was made to showcase my understanding of web API, SpringBoot, and MongoDB.
+This Project is an anonymous movie review API that can be easily integrated into most Frontend designs.
+
+
 ### Program-startup
 
 1. Clone project onto your local desktop.

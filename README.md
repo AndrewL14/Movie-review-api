@@ -10,7 +10,7 @@
 6. Look at `Request navigation` below for all commands then copy and paste them into your selected option.
 
 #### Note:
-This programs responses or in JSON format to best Read them I recommend post man or terminal
+This programs responses or in JSON format to best Read them I recommend postman or terminal
 
 ### Request navigation
 

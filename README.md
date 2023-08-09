@@ -5,6 +5,11 @@
 This Project was made to showcase my understanding of web API, SpringBoot, and MongoDB.
 This Project is an anonymous movie review API that can be easily integrated into most Frontend designs.
 
+### DISCLAIMER
+
+Since this project is used just to showcase my knowledge the .env file will show up in my Github repo,
+in actual practice the .env file would be hidden and not be added to the repo.
+
 
 ### Program-startup
 

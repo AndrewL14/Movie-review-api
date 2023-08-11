@@ -3,31 +3,32 @@
 ## description
 
 This Project was made to showcase my understanding of web API, SpringBoot, and MongoDB.
-This Project is an anonymous movie review API that can be easily integrated into most Frontend designs.
+This Project is an anonymous movie review API that can be easily integrated into most front-end designs.
 
 ### DISCLAIMER
 
 Since this project is used just to showcase my knowledge the .env file will show up in my Github repo,
-in actual practice the .env file would be hidden and not be added to the repo.
+in actual practice, the .env file would be hidden and not be added to the repo.
 
+Currently, the user and authentication have not been fully implemented yet.
 
 ### Program-startup
 
-1. Clone project onto your local desktop.
-2. Compile project then go to `MovieApplication.java` class
+1. Clone the project onto your local desktop.
+2. Compile the project then go to the `MovieApplication.java` class
 3. Run the Application.
-4. To interact with the program you will need a terminal, Application like Postman, or any Browser.
+4. To interact with the program you will need a terminal, an Application like Postman, or any Browser.
 5. The application should be running on http://localhost:8080/
 6. Look at `Request navigation` below for all commands then copy and paste them into your selected option.
 
 #### Note:
-This programs responses or in JSON format to best Read them I recommend postman or terminal
+This program's responses or in JSON format to best Read I recommend Postman or terminal
 
 ### Request navigation
 
 #### terminal
 
-these commands should work on terminal, CMD, and Git Bash
+these commands should work on the terminal, CMD, and Git Bash
 
 `Get all movies`
 curl -X GET http://localhost:8080/api/v1/movies
@@ -76,7 +77,7 @@ Note: currently no authentication to what is put inside these fields as such dup
 `Get all movies` GET request
 localhost:8080/api/v1/movies
 
-`Get a movie based on it's imbdId` GET request
+`Get a movie based on its imbdId` GET request
 localhost:8080/api/v1/movies/the imdbId you want to use
 
 Or you can submit a JSON body:
@@ -100,7 +101,7 @@ JSON body:
 `Upload a new Movie` PUT request
 
 Note: currently no authentication to what is put inside these fields as such duplication of the same can happen
-I recommend doing this one in postman since the request for the browser is well very long.
+I recommend doing this one in Postman since the request for the browser is well very long.
 
 
 `localhost:8080/api/v1/movies/upload?title=Extraction 2

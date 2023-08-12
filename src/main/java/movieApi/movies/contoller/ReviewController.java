@@ -1,6 +1,6 @@
 package movieApi.movies.contoller;
 
-import movieApi.movies.dto.ReviewDTO;
+import movieApi.movies.dto.response.ReviewDTO;
 import movieApi.movies.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,11 @@ public class ReviewController {
 
     @PostMapping
     public ResponseEntity<ReviewDTO> createReview(@RequestBody Map<String, String> payload){
-        return new ResponseEntity<ReviewDTO>(service.createReview(payload.get("reviewBody"), payload.get("imdbId")), HttpStatus.CREATED);
+        return new ResponseEntity<ReviewDTO>(service.
+                createReview(payload.get("reviewBody"),
+                        payload.get("imdbId"),
+                        payload.get("userImdbId")
+                ), HttpStatus.CREATED);
     }
 
 }

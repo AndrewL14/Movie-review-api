@@ -1,4 +1,4 @@
-package movieApi.movies.dto;
+package movieApi.movies.dto.response;
 
 public record ReviewDTO(String body) {
 }

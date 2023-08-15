@@ -1,15 +1,13 @@
-package movieApi.movies.dto;
+package movieApi.movies.dto.request;
 
 import java.util.List;
 
-public record MovieDTO(
-        String imdbId,
+public record CreateMovieRequest(
         String title,
         String releaseDate,
         String trailerLink,
         String poster,
         List<String> genres,
-        List<String> backdrop,
-        List<ReviewDTO> reviewIds
+        List<String> backDrop
 ) {
 }

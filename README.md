@@ -50,7 +50,7 @@ List of available imbdIds:
 11. tt8429231
 
 `To create a new Review`
-cur -X POST http://localhost:8080/api/v1/reviews -d "reviewBody=what ever you want to put in here&imdbId=imdbId you want to use"
+cur -X POST http://localhost:8080/api/v1/reviews -d "reviewBody=what ever you want to put in here&imdbId=imdbId you want to use&userImdbId=tt7581"
 
 `Upload a new Movie`
 Note: currently no authentication to what is put inside these fields as such duplication of the same can happen
@@ -86,7 +86,7 @@ Or you can submit a JSON body:
 }`
 
 `To create a new Review` POST request
-localhost:8080/api/v1/reviews?reviewBody=your review&imdbId=imdbId you want to use
+localhost:8080/api/v1/reviews?reviewBody=your review&imdbId=imdbId you want to use&userImdbId=tt7581
 
 OR
 
@@ -95,7 +95,8 @@ localhost:8080/api/v1/reviews
 JSON body:
 `{
     "reviewBody": "The Movie was great.",
-    "imdbId": "tt3915174"
+    "imdbId": "tt3915174",
+    "userImdbId": "tt7581"
 }`
 
 `Upload a new Movie` PUT request

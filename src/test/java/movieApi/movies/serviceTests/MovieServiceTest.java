@@ -4,6 +4,7 @@ import movieApi.movies.dto.request.CreateMovieRequest;
 import movieApi.movies.dto.response.MovieDTO;
 import movieApi.movies.entity.Movie;
 import movieApi.movies.entity.Review;
+import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.repository.MovieRepository;
 import movieApi.movies.service.MovieService;
 import movieApi.movies.utils.CustomIdMaker;
@@ -84,7 +85,7 @@ public class MovieServiceTest {
     }
 
     @Test
-    public void uploadNewMovie_validMovie_MovieDTO() {
+    public void uploadNewMovie_validMovie_MovieDTO() throws InvalidHTTPRequestException {
         // GIVEN
         CreateMovieRequest request = CreateMovieRequest.builder()
                 .title("BANDIT")
@@ -96,6 +97,9 @@ public class MovieServiceTest {
                 .build();
 
         // WHEN
+        assertDoesNotThrow(() -> {
+            service.uploadNewMovie(request);
+        }, "expected method not to throw a exception");
         MovieDTO response = service.uploadNewMovie(request);
 
         // THEN

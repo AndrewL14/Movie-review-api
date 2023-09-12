@@ -10,7 +10,7 @@ public class CustomIdMaker {
     // Method to generate a random number identifier
     public static String generateRandomNumberIdentifier() {
         Random random = new Random();
-        StringBuilder stringBuilder = new StringBuilder(7)
+        StringBuilder stringBuilder = new StringBuilder()
                 .append("tt");
 
         for (int i = 0; i < 7; i++) {

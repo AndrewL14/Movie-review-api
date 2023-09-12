@@ -1,6 +1,7 @@
 package movieApi.movies.contoller;
 
 import movieApi.movies.dto.request.CreateUserRequest;
+import movieApi.movies.dto.request.UpdateUserRequest;
 import movieApi.movies.dto.response.PrivateUserDTO;
 import movieApi.movies.dto.response.PublicUserDTO;
 import movieApi.movies.entity.User;
@@ -78,15 +79,15 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<PrivateUserDTO> updateExistingUser(@Validated @RequestBody User user) {
+    public ResponseEntity<PrivateUserDTO> updateExistingUserWithRequest(@Validated @RequestBody UpdateUserRequest request) throws InvalidHTTPRequestException {
         return new ResponseEntity<PrivateUserDTO>(
-                service.updateExistingUser(user), HttpStatus.OK
+                service.updateExistingUser(request), HttpStatus.OK
         );
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@Validated @RequestBody User user) {
-        service.deleteUserFromDB(user);
+    public ResponseEntity<?> deleteUser(@PathVariable String imdbId) throws InvalidHTTPRequestException {
+        service.deleteUserFromDB(imdbId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

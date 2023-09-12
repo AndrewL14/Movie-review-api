@@ -100,16 +100,16 @@ public class RequestValidator {
         }
     }
 
-    private boolean isValidName(String name) {
+    public boolean isValidName(String name) {
         return name.matches("^[a-zA-Z]*$");
     }
 
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return Pattern.compile(emailRegex).matcher(email).matches();
     }
 
-    private void isValidPassword(String password) throws InvalidHTTPRequestException {
+    public void isValidPassword(String password) throws InvalidHTTPRequestException {
         String lengthRegex = ".{8,}";
         String uppercaseRegex = ".*[A-Z].*";
         String lowercaseRegex = ".*[a-z].*";
@@ -126,7 +126,7 @@ public class RequestValidator {
     }
 
 
-    private void doesUserExist(String username, String email) throws InvalidHTTPRequestException {
+    public void doesUserExist(String username, String email) throws InvalidHTTPRequestException {
         Query usernameQuery = new Query();
         Query emailQuery = new Query();
         User possibleUserByUsername;

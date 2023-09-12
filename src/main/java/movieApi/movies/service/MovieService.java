@@ -4,8 +4,10 @@ import movieApi.movies.converter.Converter;
 import movieApi.movies.dto.request.CreateMovieRequest;
 import movieApi.movies.dto.response.MovieDTO;
 import movieApi.movies.entity.Movie;
+import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.repository.MovieRepository;
 import movieApi.movies.utils.CustomIdMaker;
+import movieApi.movies.utils.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class MovieService {
     @Autowired
     private MovieRepository repository;
+    private RequestValidator validator;
 
     public List<MovieDTO> findAllMovies() {
         return repository.findAll().stream()
@@ -29,7 +32,9 @@ public class MovieService {
                 .map(Converter::MovieToDTO);
     }
 
-    public MovieDTO uploadNewMovie(CreateMovieRequest request) {
+    public MovieDTO uploadNewMovie(CreateMovieRequest request) throws InvalidHTTPRequestException {
+        validator.validMovieRequest(request);
+
         String imdbId = CustomIdMaker.generateRandomNumberIdentifier();
         boolean isAvailable = false;
         // Find better way to determine weather or not the id is already in use

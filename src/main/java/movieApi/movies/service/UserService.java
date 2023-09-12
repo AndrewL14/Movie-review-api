@@ -6,8 +6,10 @@ import movieApi.movies.dto.request.CreateUserRequest;
 import movieApi.movies.dto.response.PrivateUserDTO;
 import movieApi.movies.dto.response.PublicUserDTO;
 import movieApi.movies.entity.User;
+import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.repository.UserRepository;
 import movieApi.movies.utils.CustomIdMaker;
+import movieApi.movies.utils.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -27,6 +29,7 @@ public class UserService {
     private UserRepository repo;
     @Autowired
     private MongoTemplate template;
+    private RequestValidator validator;
 
     public List<PublicUserDTO> getAllUsersFromDB() {
         return repo.findAll().stream()
@@ -60,7 +63,9 @@ public class UserService {
                 .map(Converter::userToPrivateDTO);
     }
 
-    public PrivateUserDTO createNewUser(CreateUserRequest user) {
+    public PrivateUserDTO createNewUser(CreateUserRequest user) throws InvalidHTTPRequestException {
+        validator.validUserRequest(user);
+
         String imdbId = CustomIdMaker.generateRandomNumberIdentifier();
         boolean isAvailable = false;
         // Find better way to determine weather or not the id is already in use

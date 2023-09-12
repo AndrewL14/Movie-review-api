@@ -4,6 +4,7 @@ import movieApi.movies.dto.request.CreateUserRequest;
 import movieApi.movies.dto.response.PrivateUserDTO;
 import movieApi.movies.dto.response.PublicUserDTO;
 import movieApi.movies.entity.User;
+import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -70,7 +71,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PrivateUserDTO> createNewUser(@Validated @RequestBody CreateUserRequest user) {
+    public ResponseEntity<PrivateUserDTO> createNewUser(@Validated @RequestBody CreateUserRequest user) throws InvalidHTTPRequestException {
             return new ResponseEntity<PrivateUserDTO>(
                     service.createNewUser(user), HttpStatus.CREATED
             );

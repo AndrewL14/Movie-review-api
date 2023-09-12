@@ -31,7 +31,7 @@ public class UserController {
         1B1. get user based on email/ check if email and password match up
      2. Get user information in the form of DTO
      3. Get all user information if the user request their information.
-     4. update information if user wishs
+     4. update information if user wishes 
      5. update review when user post new review
      */
 

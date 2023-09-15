@@ -107,17 +107,17 @@ public class UserService {
         validator.isValidEmail(email);
         validator.doesUserExist(username , email);
 
-        Update update = new Update();
+        Update updateRequest = new Update();
 
-        if (!firstName.isEmpty()) update.set("firstName" , firstName);
-        if (!lastName.isEmpty()) update.set("lastName" , lastName);
-        if (!username.isEmpty()) update.set("username" , username);
-        if (!password.isEmpty()) update.set("password" , password);
-        if (!email.isEmpty()) update.set("email" , email);
+        if (!firstName.isEmpty()) updateRequest.set("firstName" , firstName);
+        if (!lastName.isEmpty()) updateRequest.set("lastName" , lastName);
+        if (!username.isEmpty()) updateRequest.set("username" , username);
+        if (!password.isEmpty()) updateRequest.set("password" , password);
+        if (!email.isEmpty()) updateRequest.set("email" , email);
 
         Query query = new Query(Criteria.where("imdbId").is(imdbId));
 
-        UpdateResult result = template.updateFirst(query , update , User.class);
+        UpdateResult result = template.updateFirst(query , updateRequest , User.class);
 
         if (result.getModifiedCount() > 0) {
             return Converter.userToPrivateDTO(repo.findUserByImdbId(imdbId)

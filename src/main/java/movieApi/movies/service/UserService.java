@@ -13,6 +13,9 @@ import movieApi.movies.repository.UserRepository;
 import movieApi.movies.utils.CustomIdMaker;
 import movieApi.movies.utils.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -39,19 +42,24 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "usersCache", key = "#imdbId")
     public Optional<PublicUserDTO> getPublicUserByImdbId(String imdbId) {
         return repo.findUserByImdbId(imdbId)
                 .map(Converter::userToPublicDTO);
     }
 
+    @Cacheable(value = "usersCache", key = "#username")
     public PublicUserDTO getPublicUserByUsername(String username) {
         User user = template.findOne(Query.query(
                         Criteria.where("username").is(username)) ,
                 User.class);
-        assert user != null;
+        if (user == null) throw new UserNotFoundException(
+                String.format("user was not found match username %s", username)
+        );
         return Converter.userToPublicDTO(user);
     }
 
+    @Cacheable(value = "usersCache", key = "#email")
     public PublicUserDTO getPublicUserByEmail(String email) {
         User user = template.findOne(Query.query(
                         Criteria.where("email").is(email)) ,
@@ -60,11 +68,13 @@ public class UserService {
         return Converter.userToPublicDTO(user);
     }
 
+    @Cacheable(value = "usersCache", key = "#imdbId")
     public Optional<PrivateUserDTO> getPrivateUserByImdbId(String imdbId) {
         return repo.findUserByImdbId(imdbId)
                 .map(Converter::userToPrivateDTO);
     }
 
+    @CacheEvict(value = "usersCache", allEntries = true)
     public PrivateUserDTO createNewUser(CreateUserRequest user) throws InvalidHTTPRequestException {
         validator.validUserRequest(user);
 
@@ -90,6 +100,7 @@ public class UserService {
         return Converter.userToPrivateDTO(createdUser);
     }
 
+    @CachePut(value = "usersCache", key = "#imdbId")
     public PrivateUserDTO updateExistingUser(UpdateUserRequest request) throws InvalidHTTPRequestException {
         if (request == null) throw new InvalidHTTPRequestException("Request is null");
 

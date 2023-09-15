@@ -9,6 +9,8 @@ import movieApi.movies.repository.MovieRepository;
 import movieApi.movies.utils.CustomIdMaker;
 import movieApi.movies.utils.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,11 +29,14 @@ public class MovieService {
                 .map(Converter::MovieToDTO)
                 .collect(Collectors.toList());
     }
+
+    @Cacheable(value = "moviesCache", key = "#imdbId")
     public Optional<MovieDTO> findMovieByImdbId(String imdbId) {
         return repository.findMovieByImdbId(imdbId)
                 .map(Converter::MovieToDTO);
     }
 
+    @CacheEvict(value = "moviesCache", allEntries = true)
     public MovieDTO uploadNewMovie(CreateMovieRequest request) throws InvalidHTTPRequestException {
         validator.validMovieRequest(request);
 

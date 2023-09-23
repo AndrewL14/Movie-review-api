@@ -34,6 +34,7 @@ public class UserService {
     private UserRepository repo;
     @Autowired
     private MongoTemplate template;
+    @Autowired
     private RequestValidator validator;
 
     public List<PublicUserDTO> getAllUsersFromDB() {
@@ -112,8 +113,8 @@ public class UserService {
                 email = request.email();
 
 
-        validator.isValidName(firstName);
-        validator.isValidName(lastName);
+        if (!validator.isValidName(firstName)) throw new InvalidHTTPRequestException("Invalid first name");
+        if (!validator.isValidName(lastName)) throw new InvalidHTTPRequestException("Invalid first name");
         validator.isValidPassword(password);
         validator.isValidEmail(email);
         validator.doesUserExist(username , email);

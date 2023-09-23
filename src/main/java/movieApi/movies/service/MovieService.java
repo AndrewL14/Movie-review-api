@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class MovieService {
     @Autowired
     private MovieRepository repository;
+    @Autowired
     private RequestValidator validator;
 
     public List<MovieDTO> findAllMovies() {

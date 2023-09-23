@@ -4,7 +4,6 @@ import movieApi.movies.dto.request.CreateUserRequest;
 import movieApi.movies.dto.request.UpdateUserRequest;
 import movieApi.movies.dto.response.PrivateUserDTO;
 import movieApi.movies.dto.response.PublicUserDTO;
-import movieApi.movies.entity.User;
 import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +36,9 @@ public class UserController {
 
 
     @GetMapping("/")
-    public ResponseEntity<List<PublicUserDTO>> getAllPublicInformationUsers() {
+    public ResponseEntity<List<PublicUserDTO>> getAllPublicInformationUsers() throws InterruptedException {
         return  new ResponseEntity<List<PublicUserDTO>>(
-                service.getAllUsersFromDB(), HttpStatus.OK)
+                service.getAllUsersConcurrently(), HttpStatus.OK)
                 ;
     }
 

@@ -19,7 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
-
+/*
+Currently, multi-threading is slower than normal processing, because database size for movies is only 11 objects.
+Yet as more movies are added the multi-threading version will be the more optimal choice.
+ */
 @Service
 public class MovieService {
     @Autowired
@@ -57,13 +60,12 @@ public class MovieService {
     public List<MovieDTO> findAllMoviesConcurrently() throws InterruptedException {
         List<Future<MovieDTO>> futures = new ArrayList<>();
         List<Movie> movies = repository.findAll();
+        List<MovieDTO> response = new ArrayList<>();
 
         for (Movie movie : movies) {
             Future<MovieDTO> future = executor.submit(() -> Converter.MovieToDTO(movie));
             futures.add(future);
         }
-
-        List<MovieDTO> response = new ArrayList<>();
 
         for (Future<MovieDTO> dtoFuture : futures) {
             try {
@@ -73,7 +75,6 @@ public class MovieService {
                 throw new InterruptedException("Error 404: internal server error");
             }
         }
-
         return response;
     }
 

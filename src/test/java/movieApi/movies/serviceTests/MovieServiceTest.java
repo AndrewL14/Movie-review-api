@@ -40,7 +40,7 @@ public class MovieServiceTest {
     @BeforeEach
     public void setup() {
         // Initialize your mocks and stub repository behavior here
-        initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         // Stubbing findMovieByImdbId behavior
         when(repository.findMovieByImdbId(anyString()))
@@ -49,8 +49,6 @@ public class MovieServiceTest {
         // Stubbing findAll behavior
         when(repository.findAll())
                 .thenReturn(Collections.singletonList(createTestMovie()));
-
-        MockitoAnnotations.openMocks(this);
 
         // Stubbing save behavior for repository.insert
         when(repository.insert(any(Movie.class))).thenAnswer(invocation -> {

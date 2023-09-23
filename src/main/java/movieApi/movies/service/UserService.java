@@ -22,9 +22,12 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,10 +40,53 @@ public class UserService {
     @Autowired
     private RequestValidator validator;
 
-    public List<PublicUserDTO> getAllUsersFromDB() {
-        return repo.findAll().stream()
-                .map(Converter::userToPublicDTO)
-                .collect(Collectors.toList());
+    private ThreadPoolExecutor executor;
+
+    @PostConstruct
+    public void initializeExecutor() {
+        int initialThreadPoolSize = (int) calculateInitialThreadPoolSize();
+        int maxThreadPoolSize = (int) calculateMaxThreadPoolSize();
+
+        executor = new ThreadPoolExecutor(
+                initialThreadPoolSize,
+                maxThreadPoolSize,
+                60L,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
+    }
+
+    private long calculateInitialThreadPoolSize() {
+        long numObjectsInDatabase = repo.count();
+        return Math.min(numObjectsInDatabase, Runtime.getRuntime().availableProcessors());
+    }
+
+    private long calculateMaxThreadPoolSize() {
+        long numObjectsInDatabase = repo.count();
+        return Math.max(numObjectsInDatabase, Runtime.getRuntime().availableProcessors() * 2L);
+    }
+
+    public List<PublicUserDTO> getAllUsersConcurrently() throws InterruptedException {
+        List<Future<PublicUserDTO>> futures = new ArrayList<>();
+        List<User> users = repo.findAll();
+        List<PublicUserDTO> response = new ArrayList<>();
+
+        for (User user : users) {
+            Future<PublicUserDTO> future = executor.submit(() -> Converter.userToPublicDTO(user));
+            futures.add(future);
+        }
+
+        for (Future<PublicUserDTO> dtoFuture : futures) {
+            try {
+                PublicUserDTO dto = dtoFuture.get();
+                response.add(dto);
+            } catch (InterruptedException | ExecutionException e) {
+                throw new InterruptedException("Error 404: internal server error");
+            }
+        }
+        return response;
     }
 
     @Cacheable(value = "usersCache", key = "#imdbId")
@@ -145,5 +191,10 @@ public class UserService {
         User user = repo.findUserByImdbId(imdbId).orElseThrow(UserNotFoundException::new);
 
         repo.delete(user);
+    }
+    
+    @PreDestroy
+    public void shutdownExecutorService() {
+        executor.shutdown();
     }
 }

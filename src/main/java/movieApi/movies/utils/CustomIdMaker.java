@@ -7,7 +7,10 @@ public class CustomIdMaker {
     // Define the pool of characters for generating numbers in the identifier
     private static final String NUMBER_POOL = "0123456789";
 
-    // Method to generate a random number identifier
+    /**
+     * generates a unique imdbId for later use
+     * @return A new imdbId
+     */
     public static String generateRandomNumberIdentifier() {
         Random random = new Random();
         StringBuilder stringBuilder = new StringBuilder()

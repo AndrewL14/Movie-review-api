@@ -23,6 +23,15 @@ public class ReviewService {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    /**
+     * Creates a new Review objects, saves it to database, returns DTO.
+     * If movie is not found throws MovieNotFoundException, If User is not found throws
+     * UserNotFoundException.
+     * @param reviewBody A string containing the review text from the user.
+     * @param imdbId A unique database identifier for finding the corresponding movie object.
+     * @param userImdbId A unique database identifier for finding the corresponding user object.
+     * @return A Review DTO object
+     */
     public ReviewDTO createReview(String reviewBody, String imdbId, String userImdbId) {
         if (!imdbId.startsWith("tt") || !userImdbId.startsWith("tt")) {
             throw new IllegalArgumentException("user or movie imdbId invalid format");

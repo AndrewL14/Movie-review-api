@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.util.HashSet;
@@ -17,11 +18,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Service
 public class RequestValidator {
     @Autowired
     private MongoTemplate template;
-    private final Set<String> GENRES = new HashSet<>();
-    {
+    private static final Set<String> GENRES = new HashSet<>();
+    static {
         GENRES.add("ACTION");
         GENRES.add("ADVENTURE");
         GENRES.add("ANIMATION");
@@ -36,6 +38,8 @@ public class RequestValidator {
         GENRES.add("THRILLER");
     }
 
+    public RequestValidator() {
+    }
     public void validMovieRequest(CreateMovieRequest request) throws InvalidHTTPRequestException {
         if (request == null) throw new InvalidHTTPRequestException("request is null");
         String title = request.title();
@@ -100,16 +104,16 @@ public class RequestValidator {
         }
     }
 
-    private boolean isValidName(String name) {
+    public boolean isValidName(String name) {
         return name.matches("^[a-zA-Z]*$");
     }
 
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return Pattern.compile(emailRegex).matcher(email).matches();
     }
 
-    private void isValidPassword(String password) throws InvalidHTTPRequestException {
+    public void isValidPassword(String password) throws InvalidHTTPRequestException {
         String lengthRegex = ".{8,}";
         String uppercaseRegex = ".*[A-Z].*";
         String lowercaseRegex = ".*[a-z].*";
@@ -126,7 +130,7 @@ public class RequestValidator {
     }
 
 
-    private void doesUserExist(String username, String email) throws InvalidHTTPRequestException {
+    public  void doesUserExist(String username, String email) throws InvalidHTTPRequestException {
         Query usernameQuery = new Query();
         Query emailQuery = new Query();
         User possibleUserByUsername;

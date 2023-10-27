@@ -1,9 +1,9 @@
 package movieApi.movies.contoller;
 
 import movieApi.movies.dto.request.CreateUserRequest;
+import movieApi.movies.dto.request.UpdateUserRequest;
 import movieApi.movies.dto.response.PrivateUserDTO;
 import movieApi.movies.dto.response.PublicUserDTO;
-import movieApi.movies.entity.User;
 import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,15 +30,15 @@ public class UserController {
         1B1. get user based on email/ check if email and password match up
      2. Get user information in the form of DTO
      3. Get all user information if the user request their information.
-     4. update information if user wishs
+     4. update information if user wishes
      5. update review when user post new review
      */
 
 
     @GetMapping("/")
-    public ResponseEntity<List<PublicUserDTO>> getAllPublicInformationUsers() {
+    public ResponseEntity<List<PublicUserDTO>> getAllPublicInformationUsers() throws InterruptedException {
         return  new ResponseEntity<List<PublicUserDTO>>(
-                service.getAllUsersFromDB(), HttpStatus.OK)
+                service.getAllUsersConcurrently(), HttpStatus.OK)
                 ;
     }
 
@@ -78,15 +78,15 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<PrivateUserDTO> updateExistingUser(@Validated @RequestBody User user) {
+    public ResponseEntity<PrivateUserDTO> updateExistingUserWithRequest(@Validated @RequestBody UpdateUserRequest request) throws InvalidHTTPRequestException {
         return new ResponseEntity<PrivateUserDTO>(
-                service.updateExistingUser(user), HttpStatus.OK
+                service.updateExistingUser(request), HttpStatus.OK
         );
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@Validated @RequestBody User user) {
-        service.deleteUserFromDB(user);
+    public ResponseEntity<?> deleteUser(@PathVariable String imdbId) throws InvalidHTTPRequestException {
+        service.deleteUserFromDB(imdbId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -20,8 +20,8 @@ public class MovieController {
     private MovieService service;
 
     @GetMapping
-    public ResponseEntity<List<MovieDTO>> allMovies() {
-        return new ResponseEntity<List<MovieDTO>>(service.findAllMovies(), HttpStatus.OK);
+    public ResponseEntity<List<MovieDTO>> allMovies() throws InterruptedException {
+        return new ResponseEntity<List<MovieDTO>>(service.findAllMoviesConcurrently(), HttpStatus.OK);
     }
 
     @GetMapping("/{imdbId}")

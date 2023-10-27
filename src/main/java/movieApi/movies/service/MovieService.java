@@ -9,29 +9,82 @@ import movieApi.movies.repository.MovieRepository;
 import movieApi.movies.utils.CustomIdMaker;
 import movieApi.movies.utils.RequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
+import java.util.concurrent.*;
+/*
+Currently, multi-threading is slower than normal processing, because database size for movies is only 11 objects.
+Yet as more movies are added the multi-threading version will be the more optimal choice.
+ */
 @Service
 public class MovieService {
     @Autowired
     private MovieRepository repository;
+    @Autowired
     private RequestValidator validator;
+    private ThreadPoolExecutor executor;
 
-    public List<MovieDTO> findAllMovies() {
-        return repository.findAll().stream()
-                .map(Converter::MovieToDTO)
-                .collect(Collectors.toList());
+    @PostConstruct
+    public void initializeExecutor() {
+        int initialThreadPoolSize = (int) calculateInitialThreadPoolSize();
+        int maxThreadPoolSize = (int) calculateMaxThreadPoolSize();
+
+        executor = new ThreadPoolExecutor(
+                initialThreadPoolSize,
+                maxThreadPoolSize,
+                60L,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.CallerRunsPolicy()
+        );
     }
+
+    private long calculateInitialThreadPoolSize() {
+        long numObjectsInDatabase = repository.count();
+        return Math.min(numObjectsInDatabase, Runtime.getRuntime().availableProcessors());
+    }
+
+    private long calculateMaxThreadPoolSize() {
+        long numObjectsInDatabase = repository.count();
+        return Math.max(numObjectsInDatabase, Runtime.getRuntime().availableProcessors() * 2L);
+    }
+
+    public List<MovieDTO> findAllMoviesConcurrently() throws InterruptedException {
+        List<Future<MovieDTO>> futures = new ArrayList<>();
+        List<Movie> movies = repository.findAll();
+        List<MovieDTO> response = new ArrayList<>();
+
+        for (Movie movie : movies) {
+            Future<MovieDTO> future = executor.submit(() -> Converter.MovieToDTO(movie));
+            futures.add(future);
+        }
+
+        for (Future<MovieDTO> dtoFuture : futures) {
+            try {
+                MovieDTO movieDTO = dtoFuture.get();
+                response.add(movieDTO);
+            } catch (InterruptedException | ExecutionException e) {
+                throw new InterruptedException("Error 404: internal server error");
+            }
+        }
+        return response;
+    }
+
+    @Cacheable(value = "moviesCache", key = "#imdbId")
     public Optional<MovieDTO> findMovieByImdbId(String imdbId) {
         return repository.findMovieByImdbId(imdbId)
                 .map(Converter::MovieToDTO);
     }
 
+    @CacheEvict(value = "moviesCache", allEntries = true)
     public MovieDTO uploadNewMovie(CreateMovieRequest request) throws InvalidHTTPRequestException {
         validator.validMovieRequest(request);
 
@@ -58,5 +111,10 @@ public class MovieService {
         ));
 
         return Converter.MovieToDTO(movie);
+    }
+
+    @PreDestroy
+    public void shutdownExecutorService() {
+        executor.shutdown();
     }
 }

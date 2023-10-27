@@ -35,12 +35,10 @@ public class MovieServiceTest {
     @Mock
     private MovieRepository repository;
 
-    // ... Other constants and setup code
-
     @BeforeEach
     public void setup() {
         // Initialize your mocks and stub repository behavior here
-        initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         // Stubbing findMovieByImdbId behavior
         when(repository.findMovieByImdbId(anyString()))
@@ -50,21 +48,21 @@ public class MovieServiceTest {
         when(repository.findAll())
                 .thenReturn(Collections.singletonList(createTestMovie()));
 
-        MockitoAnnotations.openMocks(this);
-
         // Stubbing save behavior for repository.insert
         when(repository.insert(any(Movie.class))).thenAnswer(invocation -> {
             Movie movie = invocation.getArgument(0);
             return movie; // Returning the same movie for simplicity
         });
+
+        service.initializeExecutor();
     }
 
     @Test
-    public void findAllMovies_ListOfMovieDTO() {
+    public void findAllMovies_ListOfMovieDTO() throws InterruptedException {
         // GIVEN
 
         // WHEN
-        List<MovieDTO> response = service.findAllMovies();
+        List<MovieDTO> response = service.findAllMoviesConcurrently();
 
         // THEN
         assertNotNull(response);

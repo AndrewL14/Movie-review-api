@@ -218,7 +218,7 @@ public class UserService {
 
 
         if (!validator.isValidName(firstName)) throw new InvalidHTTPRequestException("Invalid first name");
-        if (!validator.isValidName(lastName)) throw new InvalidHTTPRequestException("Invalid first name");
+        if (!validator.isValidName(lastName)) throw new InvalidHTTPRequestException("Invalid last name");
         validator.isValidPassword(password);
         validator.isValidEmail(email);
         validator.doesUserExist(username , email);

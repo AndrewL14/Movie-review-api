@@ -1,5 +1,6 @@
 package movieApi.movies.service;
 
+import com.mongodb.client.result.UpdateResult;
 import movieApi.movies.converter.Converter;
 import movieApi.movies.dto.response.ReviewDTO;
 import movieApi.movies.entity.Movie;
@@ -11,6 +12,7 @@ import movieApi.movies.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
@@ -40,19 +42,21 @@ public class ReviewService {
 
         Review review = reviewRepository.insert(new Review(reviewBody));
         try {
-            mongoTemplate.update(Movie.class)
-                    .matching(Criteria.where("imdbId").is(imdbId))
-                    .apply(new Update().push("reviewIds").value(review))
-                    .first();
+            mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("imdbId").is(imdbId)),
+                    new Update().push("reviewIds").value(review),
+                    Movie.class
+            );
         } catch (Exception e) {
             throw new MovieNotFoundException("Invalid Movie imdbId: " + imdbId);
         }
 
         try {
-            mongoTemplate.update(User.class)
-                    .matching(Criteria.where("imdbId").is(userImdbId))
-                    .apply(new Update().push("userReviews").value(review))
-                    .first();
+            mongoTemplate.updateFirst(
+                    Query.query(Criteria.where("imdbId").is(userImdbId)),
+                    new Update().push("userReviews").value(review),
+                    User.class
+            );
         } catch (Exception e) {
             throw new UserNotFoundException("Invalid User imdbId: " + userImdbId);
         }

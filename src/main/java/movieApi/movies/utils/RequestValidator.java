@@ -40,6 +40,13 @@ public class RequestValidator {
 
     public RequestValidator() {
     }
+
+    /**
+     * Validates the movie request sent from client side.
+     * format, nulls, and duplicates.
+     * @param request the request to be validated
+     * @throws InvalidHTTPRequestException if fails to be validated.
+     */
     public void validMovieRequest(CreateMovieRequest request) throws InvalidHTTPRequestException {
         if (request == null) throw new InvalidHTTPRequestException("request is null");
         String title = request.title();
@@ -65,6 +72,12 @@ public class RequestValidator {
         }
     }
 
+    /**
+     * Validates a user create request.
+     * format, nulls, and duplicate check
+     * @param request the request to be validated
+     * @throws InvalidHTTPRequestException if fails to be validated by the method.
+     */
     public void validUserRequest(CreateUserRequest request) throws InvalidHTTPRequestException {
         if (request == null) throw new InvalidHTTPRequestException("request is null");
 
@@ -86,6 +99,11 @@ public class RequestValidator {
         isValidPassword(password);
     }
 
+    /**
+     * Checks if it's a valid genre to be used.
+     * @param genres a list of strings containing genres
+     * @throws InvalidHTTPRequestException if fails to be validated.
+     */
     private void validGenreFormat(List<String> genres) throws InvalidHTTPRequestException {
         for (String genre : genres) {
             if (!GENRES.contains(genre.toUpperCase())) {
@@ -94,6 +112,12 @@ public class RequestValidator {
         }
     }
 
+    /**
+     * Checks if the URL links work
+     * NOTE: does not check if it leads to the correct backdrops.
+     * @param backdrops A list of backdrop links to be validated.
+     * @throws InvalidHTTPRequestException if the links are invalid.
+     */
     private void validBackDropLink(List<String> backdrops) throws InvalidHTTPRequestException {
         try {
             for (String link : backdrops) {
@@ -104,15 +128,32 @@ public class RequestValidator {
         }
     }
 
+    /**
+     * checks if the name given only contains letters.
+     * @param name
+     * @return weather name is valid or not.
+     */
     public boolean isValidName(String name) {
         return name.matches("^[a-zA-Z]*$");
     }
 
+    /**
+     * checks if the email has a valid format.
+     * does not check if email actually exist.
+     * @param email an email to be validated
+     * @return weather the email is valid or not.
+     */
     public boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return Pattern.compile(emailRegex).matcher(email).matches();
     }
 
+    /**
+     * checks if password given has a valid format.
+     * 8 characters, 1 uppercase, 1 lowercase, 1 special character
+     * @param password a password to be validated.
+     * @throws InvalidHTTPRequestException if the format is invalid.
+     */
     public void isValidPassword(String password) throws InvalidHTTPRequestException {
         String lengthRegex = ".{8,}";
         String uppercaseRegex = ".*[A-Z].*";
@@ -129,7 +170,12 @@ public class RequestValidator {
         if (!matcher.matches()) throw new InvalidHTTPRequestException("Invalid Password format");
     }
 
-
+    /**
+     * Checks if username or email is already used.
+     * @param username String of characters.
+     * @param email String of characters.
+     * @throws InvalidHTTPRequestException if a duplicate is found.
+     */
     public  void doesUserExist(String username, String email) throws InvalidHTTPRequestException {
         Query usernameQuery = new Query();
         Query emailQuery = new Query();

@@ -42,6 +42,9 @@ public class UserService {
 
     private ThreadPoolExecutor executor;
 
+    /**
+     * Creates and initializes Threads for later use.
+     */
     @PostConstruct
     public void initializeExecutor() {
         int initialThreadPoolSize = (int) calculateInitialThreadPoolSize();
@@ -58,16 +61,30 @@ public class UserService {
         );
     }
 
+    /**
+     * Calculates optimal Thread pool size based on the number of objects in database.
+     * @return the min number of threads to use
+     */
     private long calculateInitialThreadPoolSize() {
         long numObjectsInDatabase = repo.count();
         return Math.min(numObjectsInDatabase, Runtime.getRuntime().availableProcessors());
     }
 
+    /**
+     * Calculates the optimal Thread pool size based on the number of objects in database.
+     * @return the max number of threads to use.
+     */
     private long calculateMaxThreadPoolSize() {
         long numObjectsInDatabase = repo.count();
         return Math.max(numObjectsInDatabase, Runtime.getRuntime().availableProcessors() * 2L);
     }
 
+    /**
+     * Uses threads to concurrently retrieve all Users in the database.
+     * If threads are Interrupted or execution is halted will throw InterruptedException.
+     * @return A List of Public User DTOs
+     * @throws InterruptedException if threads fail mid-execution.
+     */
     public List<PublicUserDTO> getAllUsersConcurrently() throws InterruptedException {
         List<Future<PublicUserDTO>> futures = new ArrayList<>();
         List<User> users = repo.findAll();
@@ -89,12 +106,26 @@ public class UserService {
         return response;
     }
 
+    /**
+     * Finds A user based on its unique database identifier. then returns an optional user dto
+     * finally sends the user object to be stored an in cache
+     * @param imdbId Unique database identifier.
+     * @return An optional public user DTO, so in the event the user is not found there will
+     * no error.
+     */
     @Cacheable(value = "usersCache", key = "#imdbId")
     public Optional<PublicUserDTO> getPublicUserByImdbId(String imdbId) {
         return repo.findUserByImdbId(imdbId)
                 .map(Converter::userToPublicDTO);
     }
 
+    /**
+     * Finds A user based on its unique username. then returns a Public user dto.
+     * finally sends the user object to be stored an in cache.
+     * If the User is not found throws a UserNotFoundException.
+     * @param username A unique String of characters made by the user
+     * @return a public user dto
+     */
     @Cacheable(value = "usersCache", key = "#username")
     public PublicUserDTO getPublicUserByUsername(String username) {
         User user = template.findOne(Query.query(
@@ -106,6 +137,12 @@ public class UserService {
         return Converter.userToPublicDTO(user);
     }
 
+    /**
+     * retrieves User by email.
+     * stores user in a cache.
+     * @param email unique email set by the user
+     * @return a public user dto
+     */
     @Cacheable(value = "usersCache", key = "#email")
     public PublicUserDTO getPublicUserByEmail(String email) {
         User user = template.findOne(Query.query(
@@ -115,12 +152,26 @@ public class UserService {
         return Converter.userToPublicDTO(user);
     }
 
+    /**
+     * gets user based on unique database identifier then returns private user dto.
+     * stores user in a cache
+     * @param imdbId unique database identifier
+     * @return a private user dto
+     */
     @Cacheable(value = "usersCache", key = "#imdbId")
     public Optional<PrivateUserDTO> getPrivateUserByImdbId(String imdbId) {
         return repo.findUserByImdbId(imdbId)
                 .map(Converter::userToPrivateDTO);
     }
 
+    /**
+     * Creates a new user with the given information in the createUserRequest class and
+     * generates a unique imdbId, stores user in a cache.
+     * @param user a request to create a new user.
+     * @return A private userDto
+     * @throws InvalidHTTPRequestException if the request is invalid (format, method header, etc..)
+     * the method throws InvalidHTTPRequest.
+     */
     @CacheEvict(value = "usersCache", allEntries = true)
     public PrivateUserDTO createNewUser(CreateUserRequest user) throws InvalidHTTPRequestException {
         validator.validUserRequest(user);
@@ -147,6 +198,13 @@ public class UserService {
         return Converter.userToPrivateDTO(createdUser);
     }
 
+    /**
+     * Updates an existing user with new information from the user, saves the user to the database,
+     * stores the user in a cache.
+     * @param request Updated information to be changed to the selected user
+     * @return a private user dto with the updated information
+     * @throws InvalidHTTPRequestException if the format or request as a whole is invalid.
+     */
     @CachePut(value = "usersCache", key = "#imdbId")
     public PrivateUserDTO updateExistingUser(UpdateUserRequest request) throws InvalidHTTPRequestException {
         if (request == null) throw new InvalidHTTPRequestException("Request is null");
@@ -160,7 +218,7 @@ public class UserService {
 
 
         if (!validator.isValidName(firstName)) throw new InvalidHTTPRequestException("Invalid first name");
-        if (!validator.isValidName(lastName)) throw new InvalidHTTPRequestException("Invalid first name");
+        if (!validator.isValidName(lastName)) throw new InvalidHTTPRequestException("Invalid last name");
         validator.isValidPassword(password);
         validator.isValidEmail(email);
         validator.doesUserExist(username , email);
@@ -185,6 +243,11 @@ public class UserService {
         }
     }
 
+    /**
+     * deletes selected user based on the imdbId given.
+     * @param imdbId Secondary unique database identifier.
+     * @throws InvalidHTTPRequestException if the request or format is invalid
+     */
     public void deleteUserFromDB(String imdbId) throws InvalidHTTPRequestException {
         if (imdbId.isEmpty()) throw new InvalidHTTPRequestException("request null");
 
@@ -192,7 +255,10 @@ public class UserService {
 
         repo.delete(user);
     }
-    
+
+    /**
+     * stops all threads
+     */
     @PreDestroy
     public void shutdownExecutorService() {
         executor.shutdown();

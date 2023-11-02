@@ -29,7 +29,7 @@ public class MovieController {
         return new ResponseEntity<Optional<MovieDTO>>(service.findMovieByImdbId(imdbId), HttpStatus.OK);
     }
 
-    @PutMapping(value = "/upload")
+    @PutMapping("/upload")
     public ResponseEntity<MovieDTO> uploadNewMovie(@Validated @RequestBody CreateMovieRequest request) throws InvalidHTTPRequestException {
         return new ResponseEntity<>(service.uploadNewMovie(request) , HttpStatus.CREATED);
     }

@@ -8,6 +8,7 @@ import movieApi.movies.exception.InvalidHTTPRequestException;
 import movieApi.movies.repository.MovieRepository;
 import movieApi.movies.service.MovieService;
 import movieApi.movies.utils.CustomIdMaker;
+import movieApi.movies.utils.RequestValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,9 +20,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.mockito.Mockito.when;
-
 public class MovieServiceTest {
 
     private static final  String IMDB_ID = "tt" + CustomIdMaker.generateRandomNumberIdentifier(), TITLE = "BANDIT", RELEASE_DATE = "2022-10-19",
@@ -34,6 +33,8 @@ public class MovieServiceTest {
 
     @Mock
     private MovieRepository repository;
+    @Mock
+    private RequestValidator validator;
 
     @BeforeEach
     public void setup() {
@@ -95,9 +96,6 @@ public class MovieServiceTest {
                 .build();
 
         // WHEN
-        assertDoesNotThrow(() -> {
-            service.uploadNewMovie(request);
-        }, "expected method not to throw a exception");
         MovieDTO response = service.uploadNewMovie(request);
 
         // THEN

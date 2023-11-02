@@ -121,7 +121,7 @@ public class MovieService {
         boolean isAvailable = false;
         // Find better way to determine weather or not the id is already in use
         while (!isAvailable) {
-            if (findMovieByImdbId(imdbId).isEmpty()) {
+            if (!findMovieByImdbId(imdbId).get().title().isEmpty()) {
                 isAvailable = true;
             } else {
                 imdbId = CustomIdMaker.generateRandomNumberIdentifier();
